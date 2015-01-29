@@ -160,6 +160,31 @@ var invoke = function (env) {
         }).catch(exitWithError);
     });
 
+    commander
+        .command('generate_seed <name>')
+        .description('        Create a new named seed file.')
+        .option('-x [' + filetypes.join('|') + ']', 'Specify the stub extension (default js)')
+        .action(function (name) {
+            var ext = (args.x || 'js').toLowerCase();
+            pending = initSailsMigrations(env)
+                .generateSeed(name, {extension: ext})
+                .then(function (name) {
+                    exitSuccessfully(chalk.green('Created Seed: ' + name));
+                }).catch(exitWithError);
+        });
+
+    commander
+        .command('run_seeds')
+        .description('        Runs all seed files for the current environment.')
+        .action(function () {
+            pending = initSailsMigrations(env)
+                .runSeeds()
+                .then(function (log) {
+                    exitSuccessfully(chalk.green(log.length + ' seeds ran\n' + chalk.cyan(log.join('\n'))));
+                })
+                .catch(exitWithError);
+        });
+
 
   commander.parse(process.argv);
 

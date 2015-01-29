@@ -11,6 +11,7 @@ describe "cli #{version}", ->
     @timeout(50000)
     @sampleAppPath = path.resolve(BASE_PATH, version)
     @migrationsPath = path.resolve(@sampleAppPath + "/db/migrations")
+    @seedsPath = path.resolve(@sampleAppPath + "/db/seeds")
 
     shell.exec("npm link", silent: true)
     shell.cd(@sampleAppPath)
@@ -106,6 +107,32 @@ describe "cli #{version}", ->
         done(err)
       )
 
+  describe "generate_seed", ->
+    context "when no :name param is given", ->
+      it 'it should complain that a name must be given', ->
+        result = shell.exec("sails-migrations generate_seed", silent: true)
+        expect(result.code).to.eql 1 #we need to fail
+        expect(result.output).to.have.string 'error: missing required argument `name\''
+
+    context "when a :name param is given", ->
+      beforeEach ->
+        NAME = "my awesome name"
+        @result = shell.exec("sails-migrations generate_seed '#{NAME}'", silent: true)
+
+      it 'should exit successfully', ->
+        expect(@result.code).to.not.eql 1
+
+      it 'should create the seed', ->
+        files = shell.ls(@seedsPath)
+        expect(files.length).to.equal 1
+        expect(files[0]).to.eql 'my_awesome_name.js'
+
+    describe "run_seeds", ->
+    context "when the seeds folder does not exist", ->
+      it "should report an error", ->
+        result = shell.exec("sails-migrations run_seeds", silent: true)
+        expect(result.output).to.have.string "/db/seeds does not exist"
+        expect(result.code).to.eq 1
 
   ###
   no idea how to test those..
