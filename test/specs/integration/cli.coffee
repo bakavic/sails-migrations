@@ -37,6 +37,7 @@ describe "cli #{version}", ->
 
   beforeEach ->
     shell.rm('-rf', @migrationsPath)
+    shell.rm('-rf', @seedsPath)
     shell.exec('sails-migrations db:drop', silent: true)
     shell.exec('sails-migrations db:create', silent: true)
 
@@ -127,7 +128,7 @@ describe "cli #{version}", ->
         expect(files.length).to.equal 1
         expect(files[0]).to.eql 'my_awesome_name.js'
 
-    describe "run_seeds", ->
+  describe "run_seeds", ->
     context "when the seeds folder does not exist", ->
       it "should report an error", ->
         result = shell.exec("sails-migrations run_seeds", silent: true)
